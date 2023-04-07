@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "apartmate",
     "name": "apartmate",
     "slug": "apartmate",
     "version": "1.0.0",
@@ -18,6 +19,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.alecumihaieduard.apartmate",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -25,6 +27,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "efc2dcfe-b087-420c-91e4-b1953d43b2e6"
+      }
     }
   }
 }
