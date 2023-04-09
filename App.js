@@ -1,12 +1,19 @@
 import UserStack from "./src/navigators/userStack";
 import AuthStack from "./src/navigators/authStack";
-import { useAuth } from "./src/hooks/useAuth";
 import "expo-dev-client"
+import {useFonts} from "expo-font"
+import { useAuth } from "./src/hooks/useAuth";
+import { useEffect } from "react";
+import { supabase } from "./src/api/supabase";
 
-export default function App() {
+ const App = () => {
+  let [fontsLoaded] = useFonts({
+    // "SanFrancisco": require("./assets/")
+  })
 
-  const {user} = useAuth()
-  
-  return user && user.user ? <UserStack /> : <AuthStack />
-  // return <AuthStack/>
+  const {session} = useAuth()
+
+    return session && session.user ? <UserStack /> : <AuthStack />
 }
+
+export default App

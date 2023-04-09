@@ -6,7 +6,7 @@ import {
   FlatList,
   Text
 } from "react-native";
-import { useLayoutEffect, useEffect, useContext, useState } from "react";
+import { useLayoutEffect, useEffect, useState } from "react";
 import AddNavButton from "../components/AddNavButton";
 import ExpenseItem from "../components/ExpenseItem";
 import { Pressable } from "react-native";
@@ -15,39 +15,43 @@ import { supabase } from "../api/supabase";
 
 export default function AllScreen({ navigation }) {
 
-  const [dateFrom,setDateFrom] = useState(new Date("2000-01-01"))
-  const [dateTo,setDateTo] = useState(new Date())
+  const [dateFrom,setDateFrom] = useState(new Date("2020-01-01"))
+  const [dateTo,setDateTo] = useState(new Date(new Date().setHours(23,59,59,59)))
   const [visibleDateFrom,setVisibleDateFrom] = useState(false)
   const [visibleDateTo,setVisibleDateTo] = useState(false)
 
   const [expenses,setExpenses] = useState()
 
-  const updateExpenses = async () => {
+  useEffect(() => {
+      updateExpenses(dateFrom,dateTo)
+      const channel = supabase
+        .channel('schema-db-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'expenses'
+          },
+          (payload) => {
+            updateExpenses(dateFrom,dateTo)
+            
+          }
+        )
+        .subscribe()
+      return () => {supabase.removeChannel(channel)}
+  }, []);
+
+  const updateExpenses = async (dateF,dateT) => {
+
     const {data} = await supabase
       .from("expenses")
       .select()
-    console.log(data)
-      setExpenses(data)
+      .gte("date",dateF.toISOString())
+      .lte("date",dateT.toISOString())
+      .order('date',{ascending:true})
+    setExpenses(data)
   }
-
-  useEffect(() => {
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'expenses'
-        },
-        (payload) => {
-          updateExpenses()
-          console.log(payload)}
-      )
-      .subscribe((status) => {console.log(status)})
-    return () => {supabase.removeChannel(channel)}
-  }, []);
-
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -97,8 +101,8 @@ export default function AllScreen({ navigation }) {
         date={dateFrom}
         onConfirm={(date) => {
           setVisibleDateFrom(false)
-          setDateFrom(date)
-          updateExpenses()
+          setDateFrom(new Date(date.setHours(0,0,0,0)))
+          updateExpenses(new Date(date.setHours(0,0,0,0)),dateTo)
         }}
         onCancel={() => {
           setVisibleDateFrom(false)
@@ -117,8 +121,8 @@ export default function AllScreen({ navigation }) {
         date={dateTo}
         onConfirm={(date) => {
           setVisibleDateTo(false)
-          setDateTo(date)
-          updateExpenses()
+          setDateTo(new Date(date.setHours(23,59,59,59)))
+          updateExpenses(dateFrom,new Date(date.setHours(23,59,59,59)))
         }}
         onCancel={() => {
           setVisibleDateTo(false)

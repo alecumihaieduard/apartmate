@@ -5,28 +5,38 @@ const ExpensesContext = createContext()
 
 export const ExpensesProvider = ({children}) => {
 
-    const add_to_db = async (data) => {
-        
-        // const ref = collection(firestore,"test_data")
-        try {
-            // addDoc(ref,data)
-        }catch(err) {
-            console.log(err)
+    const add_to_db = async (table,data) => {
+        const {error} = await supabase
+            .from(table)
+            .insert(data)
+        if (error) {
+            console.log(error)
         }
     }
 
-    const edit_db = async (id,data) => {
-        // const docRef = doc(firestore,"test_data",id)
-        // const update = await updateDoc(docRef, data)
+    const edit_from_db = async (table,id,data) => {
+        const { error } = await supabase
+            .from(table)
+            .update(data)
+            .eq('id', id)
+        if (error) {
+            console.log(error)
+        }
     }
 
-    const remove_db = async (id) => {
-        // await deleteDoc(doc(firestore,"test_data",id))
+    const remove_from_db = async (table,id) => {
+        const { error } = await supabase
+            .from(table)
+            .delete()
+            .eq('id', id)
+        if (error) {
+            console.log(error)
+        }
     }
 
     return(
         <ExpensesContext.Provider 
-            value={{add_to_db,edit_db,remove_db}}>
+            value={{add_to_db,edit_from_db,remove_from_db}}>
             {children}
         </ExpensesContext.Provider>
     )

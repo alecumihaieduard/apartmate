@@ -16,7 +16,7 @@ const RegisterScreen = ({ navigation }) => {
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState({
+  const [errorMess, setErrorMess] = useState({
     email: "",
     password: "",
     confirmPassword: "",
@@ -31,16 +31,14 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const validateInput = (value, name) => {
-    setError((prev) => {
+    setErrorMess((prev) => {
       const stateObj = { ...prev, [name]: "" };
-
       switch (name) {
         case "email":
           if (!value) {
-            stateObj[name] = "Please enter Username.";
+            stateObj[name] = "Please enter Email.";
           }
           break;
-
         case "password":
           if (!value) {
             stateObj[name] = "Please enter Password.";
@@ -49,10 +47,9 @@ const RegisterScreen = ({ navigation }) => {
           } else {
             stateObj["confirmPassword"] = input.confirmPassword
               ? ""
-              : error.confirmPassword;
+              : errorMess.confirmPassword;
           }
           break;
-
         case "confirmPassword":
           if (!value) {
             stateObj[name] = "Please enter Confirm Password.";
@@ -69,48 +66,44 @@ const RegisterScreen = ({ navigation }) => {
     });
   };
 
-
   const signUp = async () => {
     if (
-      !error.email &&
-      !error.password &&
-      !error.confirmPassword &&
+      !errorMess.email &&
+      !errorMess.password &&
+      !errorMess.confirmPassword &&
       input.email &&
       input.password &&
       input.confirmPassword
     ) {
-      await supabase.auth.signUp(input.email, input.password)
-        .then((userCredential) => {
-          console.log("Created user", input.email);
-        })
-        .catch((error) => {
-          // let errorCode = error.code;
+      const { user, session, error } = await supabase.auth.signUp({email:input.email, password:input.password})
+          if (user) {
+          console.log("Created user", user)
+          }
+          if (error) {
           let errorMessage = error.message;
-          if (error.message === "Firebase: Error (auth/invalid-email).") {
+          if (errorMessage === "Unable to validate email address: invalid format") {
             // errorMessage = "You need to enter a valid email address.";
-            setError((prev) => {
+            setErrorMess((prev) => {
               return {...prev,"email":"Invalid email format."}
             })
           } else if (
-            error.message ===
-            "Firebase: Password should be at least 6 characters (auth/weak-password)."
-            
+            errorMessage ===
+            "Password should be at least 6 characters"
           ) {
             // errorMessage = "Password should be at least 6 characters.";
-            setError((prev) => {
+            setErrorMess((prev) => {
               return {...prev,"password":"Password must be at least 6 char."}
             })
           } else if (
-            error.message === "Firebase: Error (auth/email-already-in-use)."
+            errorMessage === "User already registered"
           ) {
             // errorMessage = "Email address already in use.";
-            setError((prev) => {
+            setErrorMess((prev) => {
               return {...prev,"email":"Email address already in use."}
             })
           }
-          // Alert.alert("Account creation failed", errorMessage);
-          console.log(errorMessage);
-        });
+          console.log(error.message)
+          }
     } else {
       validateInput(input.email, "email");
       validateInput(input.password, "password");
@@ -128,7 +121,7 @@ const RegisterScreen = ({ navigation }) => {
         <TextInput
           style={[
             styles.text_input,
-            error.email ? { borderColor: "red", borderWidth: 3 } : null,
+            errorMess.email ? { borderColor: "red", borderWidth: 3 } : null,
           ]}
           inputMode="email"
           value={input.email}
@@ -136,15 +129,19 @@ const RegisterScreen = ({ navigation }) => {
             validateInput(e._dispatchInstances.memoizedProps.value, "email")
           }
           onChangeText={(e) => onInputChange(e, "email")}
+          placeholder="email@address.com"
+          autoCapitalize={'none'}
+          placeholderTextColor={"grey"}
+
         />
         <View style={styles.emptySpaceForError}>
-          {error.email && <Text style={styles.errorText}>{error.email}</Text>}
+          {errorMess.email && <Text style={styles.errorText}>{errorMess.email}</Text>}
         </View>
-        <Text style={styles.text}>Enter password:</Text>
+        <Text style={styles.text}>Password:</Text>
         <TextInput
           style={[
             styles.text_input,
-            error.password ? { borderColor: "red", borderWidth: 3 } : null,
+            errorMess.password ? { borderColor: "red", borderWidth: 3 } : null,
           ]}
           secureTextEntry
           value={input.password}
@@ -152,17 +149,21 @@ const RegisterScreen = ({ navigation }) => {
             validateInput(e._dispatchInstances.memoizedProps.value, "password")
           }
           onChangeText={(e) => onInputChange(e, "password")}
+          placeholder="password"
+          autoCapitalize={'none'}
+          placeholderTextColor={"grey"}
+
         />
         <View style={styles.emptySpaceForError}>
-          {error.password && (
-            <Text style={styles.errorText}>{error.password}</Text>
+          {errorMess.password && (
+            <Text style={styles.errorText}>{errorMess.password}</Text>
           )}
         </View>
         <Text style={styles.text}>Confirm password:</Text>
         <TextInput
           style={[
             styles.text_input,
-            error.confirmPassword
+            errorMess.confirmPassword
               ? { borderColor: "red", borderWidth: 3 }
               : null,
           ]}
@@ -175,10 +176,13 @@ const RegisterScreen = ({ navigation }) => {
             )
           }
           onChangeText={(e) => onInputChange(e, "confirmPassword")}
+          placeholder="password"
+          autoCapitalize={'none'}
+          placeholderTextColor={"grey"}
         />
         <View style={styles.emptySpaceForError}>
-          {error.confirmPassword && (
-            <Text style={styles.errorText}>{error.confirmPassword}</Text>
+          {errorMess.confirmPassword && (
+            <Text style={styles.errorText}>{errorMess.confirmPassword}</Text>
           )}
         </View>
 

@@ -57,6 +57,7 @@ const WelcomeScreen = ({navigation}) => {
             onChangeText={(text) => setEmail(text)}
             placeholder="email@address.com"
             autoCapitalize={'none'}
+            placeholderTextColor={"grey"}
             />
         <Text style={styles.text}>Password:</Text>
         <TextInput 
@@ -66,6 +67,7 @@ const WelcomeScreen = ({navigation}) => {
             onChangeText={(text) => setPassword(text)}
             placeholder="Password"
             autoCapitalize={'none'}
+            placeholderTextColor={"grey"}
             />
         <Pressable 
             onPress={() => {

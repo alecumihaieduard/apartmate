@@ -4,14 +4,13 @@ import { View,Text,StyleSheet, Pressable } from 'react-native'
 export default function ExpenseItem({expense}) {
     const navigation = useNavigation()
 
-    let tempDate = expense.date.toDate()
+    let tempDate = new Date(expense.date)
     const fdate = 
         tempDate.getDate() +
         "/" +
         (tempDate.getMonth() + 1) +
         "/" +
         tempDate.getFullYear();
-    
     return(
         <View style={styles.container}>
                 <Pressable 
@@ -51,12 +50,11 @@ const styles = StyleSheet.create({
         height:40,
     },
     textTitle:{
-        color:"serif",
-        fontSize:16,
+        fontSize:18,
         flex:0.65,
-        fontFamily:"serif",
-        fontStyle:"italic",
+        fontFamily:"Roboto",
         color:"white",
+        fontWeight:"bold"
         
     },
     textAmount:{
@@ -72,6 +70,8 @@ const styles = StyleSheet.create({
     dateText:{
         color:"white",
         fontSize:13,
+        fontFamily:"monospace",
+
 
     }
 })

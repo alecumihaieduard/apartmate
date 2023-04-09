@@ -26,7 +26,6 @@ const BottomTabNavigator = () => {
     <BottomTab.Navigator
       sceneContainerStyle={{ backgroundColor: "rgb(249, 249, 249)" }}
       screenOptions={{
-        headerStyle: { backgroundColor: "rgb(109, 178, 142)" },
         headerTitleStyle: { color: "white" },
 
         tabBarActiveTintColor: "rgb(0, 0, 0)",
@@ -89,7 +88,6 @@ export default function UserStack() {
           <Stack.Navigator
             initialRouteName="Bottom"
             screenOptions={{
-              headerStyle: { backgroundColor: "rgb(109, 178, 142)" },
               headerTintColor: "white",
               cardStyle: { backgroundColor: "rgb(255, 255, 255)" },
             }}

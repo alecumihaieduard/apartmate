@@ -7,24 +7,30 @@ import {
   ImageBackground,
   Dimensions,
 } from "react-native";
-import { useLayoutEffect, useState, useContext } from "react";
+import { useLayoutEffect, useState, useContext,useEffect } from "react";
 
 import { Entypo } from "@expo/vector-icons";
 import ExpensesContext from "../context/ExpensesContext";
-import { useAuth } from "../hooks/useAuth";
 import DatePicker from 'react-native-date-picker'
+import { supabase } from "../api/supabase";
 
 
 export default function AddScreen({ navigation, route }) {
   const [showCalendar, setShowCalendar] = useState(false);
-  const {user} = useAuth()
-  
-  
+  const [id,setId] = useState(null)
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: type === "add" ? "Add Expense" : "Edit expense",
     });
   }, [navigation]);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data} = await supabase.auth.getSession();
+      setId(data.session.user.id)
+    };
+    checkSession();
+  });
   
   const type = route.params.type;
   
@@ -33,7 +39,7 @@ export default function AddScreen({ navigation, route }) {
   const [amount, setAmount] = useState();
   const [details, setDetails] = useState();
 
-  const {add_to_firestore} = useContext(ExpensesContext)
+  const {add_to_db} = useContext(ExpensesContext)
 
   return (
     <ImageBackground
@@ -113,14 +119,14 @@ export default function AddScreen({ navigation, route }) {
         <Pressable
           style={styles.button}
           onPress={() => {
-            add_to_firestore({
+            add_to_db("expenses",{
                 title: title,
                 amount: amount,
                 date: date,
                 details: details,
-                email: user.email
+                user_id: id
               })
-            navigation.navigate("All");
+            navigation.navigate("Recent");
           }}
         >
           <Text style={{ fontSize: 24, color: "white" }}>ADD</Text>

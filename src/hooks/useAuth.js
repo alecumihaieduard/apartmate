@@ -5,18 +5,18 @@ import 'react-native-url-polyfill/auto'
 
 export function useAuth() {
   
-  const [user, setUser] = useState(undefined);
+  const [session, setSession] = useState(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then((session) => {
-      setUser(session)
+    supabase.auth.getSession().then(async (e) => {
+      setSession(e.data.session)
     })
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session)
+    supabase.auth.onAuthStateChange(async (_event, e) => {
+      setSession(e)
     })
   }, []);
   
   return {
-    user,
+    session
   };
 }

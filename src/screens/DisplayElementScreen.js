@@ -7,7 +7,7 @@ import ExpensesContext from '../context/ExpensesContext';
 export default function DisplayElementScreen({route,navigation}) {
     
     const expense = route.params.expense
-    let tempDate = expense.date.toDate()
+    let tempDate = new Date(expense.date)
     
     const fdate = 
         tempDate.getDate() +
@@ -22,7 +22,7 @@ export default function DisplayElementScreen({route,navigation}) {
         })
     },[navigation])
 
-    const {remove_from_firestore} = useContext(ExpensesContext)
+    const {remove_from_db} = useContext(ExpensesContext)
     return(
         <ImageBackground style={{flex:1}} source={require("../img/background2.png")}>
             <View style={styles.container}>
@@ -51,7 +51,7 @@ export default function DisplayElementScreen({route,navigation}) {
                                 pressed ? {opacity:0.2} : null
                             ]}  
                             onPress={() => {
-                                remove_from_firestore(expense.id)
+                                remove_from_db("expenses",expense.id)
                                 navigation.goBack()
                             }}  
                         >

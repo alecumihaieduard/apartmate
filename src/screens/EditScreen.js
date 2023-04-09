@@ -10,7 +10,6 @@ import {
 import { useLayoutEffect, useState, useContext } from "react";
 import DatePicker from 'react-native-date-picker'
 import ExpensesContext from "../context/ExpensesContext";
-import { useAuth } from "../hooks/useAuth";
 import { AntDesign } from '@expo/vector-icons';
 
 
@@ -18,7 +17,7 @@ import { AntDesign } from '@expo/vector-icons';
 export default function EditScreen({ navigation, route }) {
   const expense = route.params.expense
 
-  const [date, setDate] = useState(expense.date.toDate());
+  const [date, setDate] = useState(new Date(expense.date));
   const [showCalendar, setShowCalendar] = useState(false);
 
   let fDate =
@@ -27,22 +26,19 @@ export default function EditScreen({ navigation, route }) {
         (date.getMonth() + 1) +
         "/" +
         date.getFullYear();
-    
-
-  const {user} = useAuth()
-  
   
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "Edit expense",
     });
+    console.log(expense)
   }, [navigation]);
 
 
   const [title, setTitle] = useState(expense.title);
-  const [amount, setAmount] = useState(expense.amount);
+  const [amount, setAmount] = useState(expense.amount)
   const [details, setDetails] = useState(expense.details);
-  const {edit_firestore} = useContext(ExpensesContext)
+  const {edit_from_db} = useContext(ExpensesContext)
 
   return (
     <ImageBackground
@@ -87,7 +83,9 @@ export default function EditScreen({ navigation, route }) {
                 inputMode="numeric"
                 maxLength={5}
                 value={amount}
-                onChangeText={(text) => setAmount(text)}
+                onChangeText={(text) => 
+                  {console.log(typeof(text))
+                  setAmount(text)}}
               />
               <Text
                 style={{
@@ -123,14 +121,13 @@ export default function EditScreen({ navigation, route }) {
         <Pressable
           style={styles.button}
           onPress={() => {
-            edit_firestore(expense.id,{
+            edit_from_db("expenses",expense.id,{
                 title: title,
                 amount: amount,
                 date: date,
                 details: details,
-                email: user.email
               })
-            navigation.navigate("All");
+            navigation.navigate("Recent");
           }}
         >
           <Text style={{ fontSize: 24, color: "white" }}>Edit</Text>
