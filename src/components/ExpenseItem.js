@@ -1,78 +1,21 @@
-import { useNavigation } from '@react-navigation/native'
-import { View,Text,StyleSheet, Pressable } from 'react-native'
+import { useNavigation } from "@react-navigation/native";
+import { View, Text, Pressable } from "react-native";
 
-export default function ExpenseItem({expense}) {
-    const navigation = useNavigation()
+export default function ExpenseItem({ expense }) {
+  const navigation = useNavigation();
+  let tempDate = new Date(expense.date);
+  const fdate = tempDate.getDate() + "/" + (tempDate.getMonth() + 1) + "/" + tempDate.getFullYear();
 
-    let tempDate = new Date(expense.date)
-    const fdate = 
-        tempDate.getDate() +
-        "/" +
-        (tempDate.getMonth() + 1) +
-        "/" +
-        tempDate.getFullYear();
-    return(
-        <View style={styles.container}>
-                <Pressable 
-                    style = {({pressed}) => [
-                        styles.pressable,
-                        pressed ? {opacity:0.3,backgroundColor:"rgb(96, 220, 229)"} : null
-                    ]}
-                    onPress={() => navigation.navigate("Display",{expense})}
-                >
-                    <View style={[styles.rowContainer]}>
-                        <Text style={[styles.textTitle]}>{expense.title}</Text>
-                        <Text style={styles.textAmount}>{expense.amount} Lei</Text>
-
-                    </View>
-                    <Text style={styles.dateText}>{fdate}</Text>
-                </Pressable>
-        </View>
-    )
+  return (
+    <Pressable
+      className={"my-1 h-20 w-[90%] self-center rounded-lg bg-black/70 p-2 active:opacity-50"}
+      onPress={() => navigation.navigate("Display", { expense })}
+    >
+      <View className={"h-10 flex-row items-center justify-between"}>
+        <Text className={"w-[65%] text-lg font-bold text-white"}>{expense.title}</Text>
+        <Text className={"w-[35%] text-right text-2xl font-bold text-white"}>{expense.amount} Lei</Text>
+      </View>
+      <Text className={"text-sm text-white"}>{fdate}</Text>
+    </Pressable>
+  );
 }
-
-const styles = StyleSheet.create({
-    pressable:{
-        flex:1,
-        padding:10,
-    },
-    container:{
-        width:"90%",
-        alignSelf:"center",
-        marginVertical:5,
-        height:75,
-        borderRadius:15,
-        backgroundColor:"rgba(20, 20, 20, 0.8)",
-    },
-    rowContainer:{
-        flexDirection:"row",
-        justifyContent:"space-between",
-        height:40,
-    },
-    textTitle:{
-        fontSize:18,
-        flex:0.65,
-        fontFamily:"Roboto",
-        color:"white",
-        fontWeight:"bold"
-        
-    },
-    textAmount:{
-        color:"white",
-        fontSize:21,
-        flex:0.35,
-        textAlign:"right",
-        marginTop:5,
-        fontWeight:"bold",
-        marginHorizontal:4
-
-    },
-    dateText:{
-        color:"white",
-        fontSize:13,
-        fontFamily:"monospace",
-
-
-    }
-})
-

@@ -2,106 +2,169 @@ import { StatusBar } from "expo-status-bar";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
-import {ExpensesProvider} from "../context/ExpensesContext"
+import { ExpensesProvider } from "../context/ExpensesContext";
 import RecentScreen from "../screens/RecentScreen";
 import AddScreen from "../screens/AddScreen";
 import EditScreen from "../screens/EditScreen";
-import AllScreen from "../screens/AllScreen";
+import SelectGroupScreen from "../screens/SelectGroupScreen";
+import CreateGroupScreen from "../screens/CreateGroupScreen";
 import DisplayElementScreen from "../screens/DisplayElementScreen";
 import { supabase } from "../api/supabase";
-
-import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { Entypo } from '@expo/vector-icons';
+import { Entypo } from "@expo/vector-icons";
+import { useContext } from "react";
+import ExpensesContext from "../context/ExpensesContext";
+import NoGroupScreen from "../screens/NoGroupScreen";
+import ActiveGroupScreen from "../screens/ActiveGroupScreen";
+import ScanScreen from "../screens/ScanScreen";
 
 const Stack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
+  const { activeGroup } = useContext(ExpensesContext);
+
   const SignOutComponent = () => {
-    supabase.auth.signOut()
-    return null
-  }
+    supabase.auth.signOut();
+    return null;
+  };
   return (
     <BottomTab.Navigator
-      sceneContainerStyle={{ backgroundColor: "rgb(249, 249, 249)" }}
+      // sceneContainerStyle={{ backgroundColor: "rgb(249, 249, 249)" }}
       screenOptions={{
-        headerTitleStyle: { color: "white" },
-
-        tabBarActiveTintColor: "rgb(0, 0, 0)",
-        tabBarInactiveTintColor: "rgb(136, 136, 136)",
-        tabBarStyle: { backgroundColor: "rgb(222, 221, 217)", height: 60},
-        tabBarLabelStyle:{fontSize:15},
+        headerTitleStyle: { color: "black" },
+        headerShown: false,
+        tabBarActiveTintColor: "rgb(255, 165, 0)",
+        tabBarInactiveTintColor: "rgb(135, 135, 135)",
+        tabBarStyle: { backgroundColor: "rgb(0, 0, 0)", borderTopColor: "black", height: 60 },
+        tabBarLabelStyle: { fontSize: 14 },
       }}
-      initialRouteName="Recent"
+      initialRouteName="Groups"
     >
       <BottomTab.Screen
-        name="Recent"
-        component={RecentScreen}
+        name="Groups"
+        component={activeGroup !== null ? ActiveGroupScreen : SelectGroupScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="md-timer" size={28} color={color} />
+            <AntDesign
+              name="team"
+              size={size}
+              color={color}
+            />
           ),
-          tabBarLabel: "Recent",
-          headerTitle: "Recent Expenses",
-          headerTransparent:true,
-          headerTitleAlign:"center",
-          headerTitleStyle:{color:"black"}
-
+          tabBarLabel: "Groups",
+          headerTitle: "Groups",
+          headerTitleAlign: "center",
+          headerTransparent: true,
+          headerTitleStyle: { color: "white", fontSize: 22 },
         }}
       />
-      {/* <BottomTab.Screen
-        name="All"
-        component={AllScreen}
+      <BottomTab.Screen
+        name="Recent"
+        component={activeGroup !== null ? RecentScreen : NoGroupScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="book" size={28} color={color} />
+            <AntDesign
+              name="profile"
+              size={size}
+              color={color}
+            />
           ),
-          tabBarLabel: "All Expenses",
-          headerTitle: "All Expenses",
-          headerTitleAlign:"center",
-          headerTransparent:true,
-          headerTitleStyle:{color:"black"}
+          tabBarLabel: "Expenses",
+          headerTitle: "",
+          headerTransparent: true,
+          headerTitleStyle: { color: "white" },
         }}
-      /> */}
-      <BottomTab.Screen 
-        name="Sign out"  
+      />
+      <BottomTab.Screen
+        name="Scan"
+        component={ScanScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign
+              name="camera"
+              size={size}
+              color={color}
+            />
+          ),
+          tabBarLabel: "Scan",
+          headerTitle: "",
+          headerTransparent: true,
+          headerTitleStyle: { color: "white" },
+        }}
+      />
+
+      <BottomTab.Screen
+        name="Sign out"
         component={SignOutComponent}
         options={{
-          tabBarIcon: ({color,size}) => (
-            <Entypo name="log-out" size={28} color={color} />          ),
-            tabBarLabel: "Sign out",
-            
-    }}/>
+          tabBarIcon: ({ color, size }) => (
+            <Entypo
+              name="log-out"
+              size={size}
+              color={color}
+            />
+          ),
+          tabBarLabel: "Sign out",
+        }}
+      />
     </BottomTab.Navigator>
   );
 };
 
-
 export default function UserStack() {
-
-    return (
-      <ExpensesProvider>
-  
-        <NavigationContainer>
-          <StatusBar style="light" />
-          <Stack.Navigator
-            initialRouteName="Bottom"
-            screenOptions={{
-              headerTintColor: "white",
-              cardStyle: { backgroundColor: "rgb(255, 255, 255)" },
+  return (
+    <ExpensesProvider>
+      <NavigationContainer>
+        <StatusBar style="dark" />
+        <Stack.Navigator
+          initialRouteName="Bottom"
+          screenOptions={{
+            headerTintColor: "black",
+            cardStyle: { backgroundColor: "rgb(255, 255, 255)" },
+          }}
+        >
+          <Stack.Screen
+            name="Bottom"
+            component={BottomTabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Add"
+            component={AddScreen}
+            options={{
+              headerTransparent: true,
+              headerTitleAlign: "center",
             }}
-          >
-            <Stack.Screen
-              name="Bottom"
-              component={BottomTabNavigator}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="Add" component={AddScreen} options={{headerTransparent:true,headerTintColor:"black",headerTitleAlign:"center"}} />
-            <Stack.Screen name="Edit" component={EditScreen} options={{headerTransparent:true,headerTintColor:"black",headerTitleAlign:"center"}}/>
-            <Stack.Screen name="Display" component={DisplayElementScreen} options={{headerTransparent:true,headerTintColor:"black",headerTitleAlign:"center"}}/>
-          </Stack.Navigator>
-        </NavigationContainer>
-      </ExpensesProvider>
-    );
-  }
+          />
+          <Stack.Screen
+            name="Edit"
+            component={EditScreen}
+            options={{
+              headerTransparent: true,
+              headerTitleAlign: "center",
+            }}
+          />
+          <Stack.Screen
+            name="Display"
+            component={DisplayElementScreen}
+            options={{
+              headerTransparent: true,
+              headerTitleAlign: "center",
+              title: ""
+            }}
+          />
+          <Stack.Screen
+            name="CreateGroup"
+            component={CreateGroupScreen}
+            options={{
+              headerTransparent: true,
+              headerTintColor: "white",
+              headerTitleAlign: "center",
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ExpensesProvider>
+  );
+}

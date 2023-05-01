@@ -1,16 +1,10 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Dimensions,
-  TextInput,
-  ImageBackground,
-  Pressable,
-} from "react-native";
+import { Text, View, TextInput, ImageBackground, Pressable, SafeAreaView } from "react-native";
 import { useState } from "react";
 import { supabase } from "../api/supabase";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const RegisterScreen = ({ navigation }) => {
+  const [loading, setLoading] = useState(false);
   const [input, setInput] = useState({
     email: "",
     password: "",
@@ -45,9 +39,7 @@ const RegisterScreen = ({ navigation }) => {
           } else if (input.confirmPassword && value !== input.confirmPassword) {
             stateObj["confirmPassword"] = "Passwords do not match.";
           } else {
-            stateObj["confirmPassword"] = input.confirmPassword
-              ? ""
-              : errorMess.confirmPassword;
+            stateObj["confirmPassword"] = input.confirmPassword ? "" : errorMess.confirmPassword;
           }
           break;
         case "confirmPassword":
@@ -67,191 +59,96 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const signUp = async () => {
-    if (
-      !errorMess.email &&
-      !errorMess.password &&
-      !errorMess.confirmPassword &&
-      input.email &&
-      input.password &&
-      input.confirmPassword
-    ) {
-      const { user, session, error } = await supabase.auth.signUp({email:input.email, password:input.password})
-          if (user) {
-          console.log("Created user", user)
-          }
-          if (error) {
-          let errorMessage = error.message;
-          if (errorMessage === "Unable to validate email address: invalid format") {
-            // errorMessage = "You need to enter a valid email address.";
-            setErrorMess((prev) => {
-              return {...prev,"email":"Invalid email format."}
-            })
-          } else if (
-            errorMessage ===
-            "Password should be at least 6 characters"
-          ) {
-            // errorMessage = "Password should be at least 6 characters.";
-            setErrorMess((prev) => {
-              return {...prev,"password":"Password must be at least 6 char."}
-            })
-          } else if (
-            errorMessage === "User already registered"
-          ) {
-            // errorMessage = "Email address already in use.";
-            setErrorMess((prev) => {
-              return {...prev,"email":"Email address already in use."}
-            })
-          }
-          console.log(error.message)
-          }
+    setLoading(true);
+    if (!errorMess.email && !errorMess.password && !errorMess.confirmPassword && input.email && input.password && input.confirmPassword) {
+      const { user, session, error } = await supabase.auth.signUp({
+        email: input.email,
+        password: input.password,
+      });
+      if (user) {
+        console.log("Created user", user);
+      }
+      if (error) {
+        let errorMessage = error.message;
+        if (errorMessage === "Unable to validate email address: invalid format") {
+          setErrorMess((prev) => {
+            return { ...prev, email: "Invalid email format." };
+          });
+        } else if (errorMessage === "Password should be at least 6 characters") {
+          setErrorMess((prev) => {
+            return { ...prev, password: "Password must be at least 6 char." };
+          });
+        } else if (errorMessage === "User already registered") {
+          setErrorMess((prev) => {
+            return { ...prev, email: "Email address already in use." };
+          });
+        }
+        console.log(error.message);
+      }
     } else {
       validateInput(input.email, "email");
       validateInput(input.password, "password");
       validateInput(input.confirmPassword, "confirmPassword");
     }
+    setLoading(false);
   };
   return (
-    <View style={{ flex: 1 }}>
+    <>
       <ImageBackground
-        source={require("../img/welcome2.png")}
-        style={styles.background}
+        className={"absolute h-screen w-screen"}
+        source={require("../img/welcome.png")}
       />
-      <View style={styles.container}>
-        <Text style={styles.text}>Email address:</Text>
+      <SafeAreaView className={"top-20 w-[80%] self-center rounded-3xl bg-black/50 p-3"}>
+        <Text className={"self-center text-lg text-white"}>Email address:</Text>
         <TextInput
-          style={[
-            styles.text_input,
-            errorMess.email ? { borderColor: "red", borderWidth: 3 } : null,
-          ]}
+          className={`shadow-cya mb-3 mt-2 h-12 w-[90%] self-center rounded-xl bg-zinc-900/80 p-2 text-white ${errorMess.email ? "border-2 border-red-600" : ""}`}
           inputMode="email"
           value={input.email}
-          onBlur={(e) =>
-            validateInput(e._dispatchInstances.memoizedProps.value, "email")
-          }
+          onBlur={(e) => validateInput(e._dispatchInstances.memoizedProps.value, "email")}
           onChangeText={(e) => onInputChange(e, "email")}
           placeholder="email@address.com"
-          autoCapitalize={'none'}
+          autoCapitalize={"none"}
           placeholderTextColor={"grey"}
-
         />
-        <View style={styles.emptySpaceForError}>
-          {errorMess.email && <Text style={styles.errorText}>{errorMess.email}</Text>}
-        </View>
-        <Text style={styles.text}>Password:</Text>
+        <View className={"h-7"}>{errorMess.email && <Text className={"self-center text-base text-[#fb4848]"}>{errorMess.email}</Text>}</View>
+        <Text className={"self-center text-lg text-white"}>Password:</Text>
         <TextInput
-          style={[
-            styles.text_input,
-            errorMess.password ? { borderColor: "red", borderWidth: 3 } : null,
-          ]}
+          className={`mb-3 mt-2 h-12 w-[90%] self-center rounded-xl bg-zinc-900/80 p-2 text-white ${errorMess.password ? "border-2 border-red-600" : ""}`}
           secureTextEntry
           value={input.password}
-          onBlur={(e) =>
-            validateInput(e._dispatchInstances.memoizedProps.value, "password")
-          }
+          onBlur={(e) => validateInput(e._dispatchInstances.memoizedProps.value, "password")}
           onChangeText={(e) => onInputChange(e, "password")}
           placeholder="password"
-          autoCapitalize={'none'}
+          autoCapitalize={"none"}
           placeholderTextColor={"grey"}
-
         />
-        <View style={styles.emptySpaceForError}>
-          {errorMess.password && (
-            <Text style={styles.errorText}>{errorMess.password}</Text>
-          )}
-        </View>
-        <Text style={styles.text}>Confirm password:</Text>
+        <View className={"h-7"}>{errorMess.password && <Text className={"self-center text-base text-[#fb4848]"}>{errorMess.password}</Text>}</View>
+        <Text className={"self-center text-lg text-white"}>Confirm password:</Text>
         <TextInput
-          style={[
-            styles.text_input,
-            errorMess.confirmPassword
-              ? { borderColor: "red", borderWidth: 3 }
-              : null,
-          ]}
+          className={`mb-3 mt-2 h-12 w-[90%] self-center rounded-xl bg-zinc-900/80 p-2 text-white ${errorMess.confirmPassword ? "border-2 border-red-600" : ""}`}
           secureTextEntry
           value={input.confirmPassword}
-          onBlur={(e) =>
-            validateInput(
-              e._dispatchInstances.memoizedProps.value,
-              "confirmPassword"
-            )
-          }
+          onBlur={(e) => validateInput(e._dispatchInstances.memoizedProps.value, "confirmPassword")}
           onChangeText={(e) => onInputChange(e, "confirmPassword")}
           placeholder="password"
-          autoCapitalize={'none'}
+          autoCapitalize={"none"}
           placeholderTextColor={"grey"}
         />
-        <View style={styles.emptySpaceForError}>
-          {errorMess.confirmPassword && (
-            <Text style={styles.errorText}>{errorMess.confirmPassword}</Text>
-          )}
-        </View>
-
+        <View className={"h-7"}>{errorMess.confirmPassword && <Text className={"self-center text-base text-[#fb4848]"}>{errorMess.confirmPassword}</Text>}</View>
         <Pressable
+          className={"my-2 h-12 w-[70%] items-center justify-center self-center rounded-xl bg-red-600 active:opacity-50"}
           onPress={signUp}
-          style={[styles.button, { backgroundColor: "rgb(255, 36, 36)" }]}
         >
-          <Text style={styles.buttonText}>Create Account</Text>
+          <Text className={"text-lg text-white"}>Create Account</Text>
         </Pressable>
-      </View>
-    </View>
+      </SafeAreaView>
+      <Spinner
+        visible={loading}
+        textContent={"Loading..."}
+        textStyle={{ color: "white" }}
+      />
+    </>
   );
 };
 
 export default RegisterScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    alignSelf: "center",
-    backgroundColor: "rgba(75, 75, 75, 0.8)",
-    borderRadius: 10,
-    marginBottom: 20,
-    marginTop: 80,
-    padding: 20,
-    width: "80%",
-  },
-  text: {
-    alignSelf: "center",
-    color: "white",
-    fontSize: 17,
-  },
-  text_input: {
-    alignSelf: "center",
-    backgroundColor: "rgba(20, 20, 20, 0.8)",
-    borderRadius: 10,
-    color: "white",
-    height: 50,
-    marginTop: 10,
-    padding: 10,
-    width: "90%",
-  },
-  emptySpaceForError: {
-    height: 30,
-  },
-  errorText: {
-    alignSelf: "center",
-    color: "rgb(225, 145, 145)",
-    fontSize: 16,
-    fontWeight: "bold",
-    textShadowColor:"black",
-    textShadowOffset:{"width":-1,height:1},
-    textShadowRadius:5
-  },
-  background: {
-    height: Dimensions.get("window").height,
-    position: "absolute",
-    width: Dimensions.get("window").width,
-  },
-  button: {
-    alignItems: "center",
-    alignSelf: "center",
-    borderRadius: 10,
-    height: 50,
-    justifyContent: "center",
-    marginVertical: 10,
-    width: "70%",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-  },
-});

@@ -1,23 +1,15 @@
-import {
-  View,
-  StyleSheet,
-  Text,
-  TextInput,
-  Pressable,
-  ImageBackground,
-  Dimensions,
-} from "react-native";
-import { useLayoutEffect, useState, useContext,useEffect } from "react";
+import { View, Text, TextInput, Pressable, ImageBackground, Dimensions } from "react-native";
+import { useLayoutEffect, useState, useContext, useEffect } from "react";
 
 import { Entypo } from "@expo/vector-icons";
 import ExpensesContext from "../context/ExpensesContext";
-import DatePicker from 'react-native-date-picker'
+import DatePicker from "react-native-date-picker";
 import { supabase } from "../api/supabase";
-
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function AddScreen({ navigation, route }) {
   const [showCalendar, setShowCalendar] = useState(false);
-  const [id,setId] = useState(null)
+  const [id, setId] = useState(null);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: type === "add" ? "Add Expense" : "Edit expense",
@@ -26,201 +18,122 @@ export default function AddScreen({ navigation, route }) {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data} = await supabase.auth.getSession();
-      setId(data.session.user.id)
+      const { data } = await supabase.auth.getSession();
+      setId(data.session.user.id);
     };
     checkSession();
   });
-  
+
   const type = route.params.type;
-  
+
   const [date, setDate] = useState(new Date());
   const [title, setTitle] = useState();
   const [amount, setAmount] = useState();
   const [details, setDetails] = useState();
 
-  const {add_to_db} = useContext(ExpensesContext)
+  const { add_to_db, activeGroup } = useContext(ExpensesContext);
 
   return (
     <ImageBackground
-      style={styles.imageBackground}
-      source={require("../img/background2.png")}
-    >
-      <View style={styles.container}>
-        <Text style={styles.titleText}>Name of the expense</Text>
-        <View style={styles.InputContainer}>
+      className={"absolute h-screen w-screen"}
+      source={require("../img/paper.jpg")}
+      >
+      <View className={"mt-20 w-[90%] items-center self-center rounded-lg bg-black/60"}>
+        <Text className={"mt-2 self-center text-xl text-white"}>Name of the expense</Text>
+        <View className={"mt-2 h-12 w-[70%] rounded-lg bg-black/50 p-1"}>
           <TextInput
-            style={styles.Input}
+            className={"flex-1 text-base text-white"}
             value={title}
             onChangeText={(text) => {
               setTitle(text);
             }}
             maxLength={35}
-            />
+          />
         </View>
-        <Text style={styles.titleText}>Details of the expense</Text>
-        <View style={styles.detailsContainer}>
+        <Text className={"mt-2 self-center text-xl text-white"}>Details of the expense</Text>
+        <View className={"mt-2 h-36 w-[80%] rounded-lg bg-black/50 p-1"}>
           <TextInput
-            style={[styles.Input,{textAlignVertical: 'top',}]}
+            className={"flex-1 text-base text-white"}
+            style={{ textAlignVertical: "top" }}
             value={details}
             onChangeText={(text) => {
-                setDetails(text);
+              setDetails(text);
             }}
             maxLength={150}
             multiline={true}
             numberOfLines={4}
           />
         </View>
-        <View style={styles.rowContainer}>
+        <View className={"w-full flex-row justify-evenly"}>
           <View>
-            <Text style={styles.titleText}>Amount</Text>
-            <View style={[styles.dateAmountContainer]}>
+            <Text className={"mt-2 self-center text-xl text-white"}>Amount</Text>
+            <View className={"my-2 h-12 w-32 flex-row rounded-lg bg-black/50 p-1"}>
               <TextInput
-                style={[
-                  styles.Input,
-                  { textAlign: "right", fontSize: 22, flex: 7, marginRight: 3 },
-                ]}
+                className={"mr-1 basis-2/3 text-right text-xl text-white"}
                 keyboardType="number-pad"
                 inputMode="numeric"
                 maxLength={5}
                 value={amount}
                 onChangeText={(text) => setAmount(text)}
               />
-              <Text
-                style={{
-                  alignSelf: "center",
-                  fontSize: 18,
-                  color: "white",
-                  flex: 3,
-                }}
-              > Lei
-              </Text>
+              <Text className={"basis-1/3 self-center text-lg text-white"}> Lei</Text>
             </View>
           </View>
           <View>
-            <Text style={styles.titleText}>Date</Text>
-            <View style={[styles.dateAmountContainer]}>
+            <Text className={"mt-2 self-center text-xl text-white"}>Date</Text>
+            <View className={"my-2 h-12 w-32 flex-row rounded-lg bg-black/50 p-1"}>
               <Pressable
-                style={{ flex: 1, justifyContent: "center" }}
+                className={"flex-1 items-center justify-center"}
                 onPress={() => setShowCalendar(true)}
               >
-                <Text
-                  style={[
-                    styles.Input,
-                    { textAlign: "center", textAlignVertical:"center",fontSize:18 },
-                  ]}
-                >
-                  {date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()}
-                </Text>
+                <Text className={"text-lg text-white"}>{date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear()}</Text>
               </Pressable>
             </View>
           </View>
         </View>
         <Pressable
-          style={styles.button}
+          className={"mb-4 mt-1 h-12 w-36 flex-row items-center justify-center rounded-lg bg-rose-600"}
           onPress={() => {
-            add_to_db("expenses",{
-                title: title,
-                amount: amount,
-                date: date,
-                details: details,
-                user_id: id
-              })
+            console.log(id);
+            add_to_db("expenses", {
+              title: title,
+              amount: amount,
+              date: date,
+              details: details,
+              created_by: id,
+              group_id: activeGroup.id,
+            });
             navigation.navigate("Recent");
           }}
         >
-          <Text style={{ fontSize: 24, color: "white" }}>ADD</Text>
-          <Entypo name="add-to-list" size={24} color="white" />
+          <Text className={"pr-2 text-2xl text-white"}>ADD</Text>
+          <Entypo
+            name="add-to-list"
+            size={30}
+            color="white"
+          />
         </Pressable>
+
         <DatePicker
-        modal
-        open={showCalendar}
-        date={date}
-        onConfirm={(date) => {
-          setShowCalendar(false)
-          setDate(date)
-        }}
-        onCancel={() => {
-          setShowCalendar(false)
-        }}
-        mode="date"
-        title= {null}
-        theme='light'
-        androidVariant="iosClone"
-        fadeToColor="none"
-        locale='ro'
-        is24hourSource="locale"
-      />
+          modal
+          open={showCalendar}
+          date={date}
+          onConfirm={(date) => {
+            setShowCalendar(false);
+            setDate(date);
+          }}
+          onCancel={() => {
+            setShowCalendar(false);
+          }}
+          mode="date"
+          title={null}
+          theme="light"
+          androidVariant="iosClone"
+          fadeToColor="none"
+          locale="ro"
+          is24hourSource="locale"
+        />
       </View>
     </ImageBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.596)",
-    width: "90%",
-    alignSelf: "center",
-    marginTop: 80,
-    borderRadius: 15,
-  },
-  button: {
-    height: 50,
-    backgroundColor: "green",
-    width: 150,
-    marginTop: 5,
-    marginBottom:15,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingHorizontal: 30,
-    borderRadius: 15,
-  },
-  imageBackground: {
-    position: "absolute",
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
-  },
-  InputContainer: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    marginTop: 10,
-    height: 50,
-    width: "70%",
-    borderRadius: 10,
-    padding: 5,
-  },
-  Input: {
-    color: "white",
-    fontSize: 16,
-    flex: 1,
-  },
-  titleText: {
-    color: "white",
-    fontSize: 20,
-    marginTop: 10,
-    alignSelf: "center",
-  },
-  dateAmountContainer: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    marginVertical: 10,
-    height: 50,
-    width: 120,
-    borderRadius: 10,
-    padding: 5,
-    flexDirection: "row",
-  },
-  rowContainer: {
-    flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-evenly",
-  },
-  detailsContainer: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    marginTop: 10,
-    height: 150,
-    width: "80%",
-    borderRadius: 10,
-    padding: 5,
-  },
-});
