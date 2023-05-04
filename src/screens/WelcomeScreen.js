@@ -1,4 +1,4 @@
-import { Text, TextInput, ImageBackground, Pressable, Image } from "react-native";
+import { Text, TextInput, ImageBackground, Pressable, Image, View } from "react-native";
 import { useState, useEffect } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import * as WebBrowser from "expo-web-browser";
@@ -53,7 +53,7 @@ const WelcomeScreen = ({ navigation }) => {
   return (
     <>
       <ImageBackground
-        className={"absolute h-screen w-screen"}
+        className={"absolute h-[135vh] w-screen"}
         source={require("../img/welcome.png")}
       />
       <SafeAreaView className={"top-20 w-[80%] self-center rounded-3xl bg-black/50 p-3"}>

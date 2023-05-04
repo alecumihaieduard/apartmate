@@ -95,7 +95,7 @@ const RegisterScreen = ({ navigation }) => {
   return (
     <>
       <ImageBackground
-        className={"absolute h-screen w-screen"}
+        className={"absolute h-[135vh] w-screen"}
         source={require("../img/welcome.png")}
       />
       <SafeAreaView className={"top-20 w-[80%] self-center rounded-3xl bg-black/50 p-3"}>

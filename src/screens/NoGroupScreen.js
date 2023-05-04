@@ -2,7 +2,7 @@ import { Text, View, ImageBackground } from "react-native";
 import React, { useLayoutEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 
-const NoGroupScreen = ({ navigation }) => {
+const NoGroupScreen = ({ navigation, message }) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: null,
@@ -17,7 +17,7 @@ const NoGroupScreen = ({ navigation }) => {
       />
 
       <View className={"mt-[90%] h-12 w-[70%] justify-center self-center"}>
-        <Text className={"flex-1 text-center text-xl font-bold text-black"}>No Group Active</Text>
+        <Text className={"flex-1 text-center text-xl font-bold text-black"}>{message}</Text>
       </View>
       <StatusBar style="dark" />
     </View>

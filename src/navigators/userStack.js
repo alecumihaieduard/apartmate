@@ -59,9 +59,9 @@ const BottomTabNavigator = () => {
           headerTitleStyle: { color: "white", fontSize: 22 },
         }}
       />
+
       <BottomTab.Screen
         name="Recent"
-        component={activeGroup !== null ? RecentScreen : NoGroupScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign
@@ -75,10 +75,20 @@ const BottomTabNavigator = () => {
           headerTransparent: true,
           headerTitleStyle: { color: "white" },
         }}
-      />
+      >
+          {(props) => 
+            {
+              if (activeGroup !== null) {
+                return <RecentScreen  {...props}/>
+              }
+              else {
+                return <NoGroupScreen  {...props} message="No active Group"/>
+              }
+            }
+          }
+      </BottomTab.Screen>
       <BottomTab.Screen
         name="Scan"
-        component={ScanScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign
@@ -92,7 +102,18 @@ const BottomTabNavigator = () => {
           headerTransparent: true,
           headerTitleStyle: { color: "white" },
         }}
-      />
+      >
+        {(props) => 
+            {
+              if (activeGroup !== null) {
+                return <ScanScreen  {...props}/>
+              }
+              else {
+                return <NoGroupScreen  {...props} message="No active Group"/>
+              }
+            }
+          }
+      </BottomTab.Screen>
 
       <BottomTab.Screen
         name="Sign out"
